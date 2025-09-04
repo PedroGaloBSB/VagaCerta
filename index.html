@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VagaCerta - Otimize seu Currículo com IA</title>
+    <!-- Chosen Palette: Professional Trust Palette (Background: #F8F7F4, Text: #1F2937, Primary: #6D28D9, Accent: #ECFDF5) -->
+    <!-- Application Structure Plan: A single-page, narrative-driven landing page structure was chosen to guide the user logically from a pain point to a solution. The flow is: Hero (captures attention), Problem (builds empathy with data), Solution (introduces VagaCerta), Features (details the value), Live Demo (proves the concept and provides immediate value), Pricing (clear call to action), and Footer. This structure is optimal for converting visitors by telling a compelling story and demonstrating capability directly on the page. -->
+    <!-- Visualization & Content Choices: 1) Problem Section: A Chart.js Doughnut chart is used to visually represent a key statistic (e.g., resumes rejected by ATS). Goal: Inform/Impact. Interaction: Hover tooltip. Justification: A visual number is more impactful than text alone. 2) Features Section: A card-based layout with simple icons created via HTML/CSS. Goal: Organize/Inform. Interaction: Subtle hover effects. Justification: Easily scannable and digestible content. 3) Live Demo: An interactive text optimization tool using the Gemini API. Goal: Engagement/Proof of Concept. Interaction: User input and button click. Justification: Provides immediate, tangible value and demonstrates the core technology. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #1F2937;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            height: 300px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-violet-700">VagaCerta ✨</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#problema" class="text-gray-600 hover:text-violet-700">O Problema</a>
+                <a href="#solucao" class="text-gray-600 hover:text-violet-700">A Solução</a>
+                <a href="#demo" class="text-gray-600 hover:text-violet-700">Demonstração</a>
+                <a href="#planos" class="text-gray-600 hover:text-violet-700">Planos</a>
+            </div>
+            <a href="#planos" class="hidden md:inline-block bg-violet-700 text-white font-semibold px-5 py-2 rounded-lg hover:bg-violet-800 transition-colors">Começar Agora</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="py-20 md:py-32">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+                    Passe pelo robô do RH. <br class="hidden md:block" />
+                    <span class="text-violet-700">Conquiste a vaga dos seus sonhos.</span>
+                </h2>
+                <p class="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                    O VagaCerta usa Inteligência Artificial para otimizar seu currículo e perfil do LinkedIn, garantindo que você se destaque para os recrutadores e sistemas de triagem (ATS).
+                </p>
+                <div class="mt-10 flex justify-center gap-4">
+                    <a href="#demo" class="bg-violet-700 text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105">Otimize um texto (Grátis)</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Problem Section -->
+        <section id="problema" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h3 class="text-3xl md:text-4xl font-bold text-gray-900">O "cemitério" de currículos é real.</h3>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Milhares de profissionais qualificados são invisíveis para os recrutadores. Por quê?</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="text-gray-700 space-y-4">
+                        <h4 class="text-2xl font-bold text-violet-700">Filtros Automáticos (ATS)</h4>
+                        <p>Sistemas de triagem (Applicant Tracking Systems) escaneiam currículos em segundos. Sem as palavras-chave certas ou a formatação correta, seu currículo é descartado antes mesmo de um humano vê-lo.</p>
+                        <h4 class="text-2xl font-bold text-violet-700 mt-6">Falta de Clareza e Impacto</h4>
+                        <p>Recrutadores levam em média 7 segundos para decidir sobre um currículo. Informações vagas, sem foco em resultados e um perfil de LinkedIn genérico não capturam a atenção.</p>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            <canvas id="atsChart"></canvas>
+                        </div>
+                        <p class="text-center mt-4 text-gray-600 font-semibold">Até 75% dos currículos são rejeitados por sistemas ATS.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Solution Section -->
+        <section id="solucao" class="py-20">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                     <h3 class="text-3xl md:text-4xl font-bold text-gray-900">Apresentando o <span class="text-violet-700">VagaCerta</span></h3>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Sua assistente de carreira pessoal, que transforma seu potencial em oportunidades reais.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow">
+                        <div class="text-4xl mb-4">📄</div>
+                        <h4 class="text-xl font-bold mb-2">Análise de Currículo com IA</h4>
+                        <p class="text-gray-600">Nossa IA identifica pontos fracos e sugere melhorias em estrutura, clareza e uso de palavras-chave para torná-lo irresistível.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow">
+                        <div class="text-4xl mb-4">🤖</div>
+                        <h4 class="text-xl font-bold mb-2">Simulação ATS</h4>
+                        <p class="text-gray-600">Compare seu currículo com a descrição de uma vaga e receba um "score de compatibilidade", com dicas para ajustá-lo perfeitamente.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow">
+                        <div class="text-4xl mb-4">🔗</div>
+                        <h4 class="text-xl font-bold mb-2">Otimização de LinkedIn</h4>
+                        <p class="text-gray-600">Receba sugestões para seu título, resumo e experiências, transformando seu perfil em um imã de recrutadores.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Demo Section -->
+        <section id="demo" class="py-20 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h3 class="text-3xl md:text-4xl font-bold text-gray-900">Veja a mágica acontecer.</h3>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">Digite um trecho do seu resumo profissional e nossa IA irá otimizá-lo em segundos.</p>
+                <div class="max-w-2xl mx-auto bg-gray-50 p-8 rounded-xl shadow-inner">
+                    <textarea id="demo-input" class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Ex: Profissional dedicado com experiência em gestão de projetos."></textarea>
+                    <button id="optimizeBtn" class="mt-4 w-full bg-violet-700 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105 disabled:bg-gray-400">
+                        ✨ Otimizar com IA
+                    </button>
+                    <div id="demo-output-container" class="mt-6 text-left hidden">
+                        <h4 class="font-bold text-gray-800">Sugestão Otimizada:</h4>
+                        <div id="demo-output" class="mt-2 p-4 bg-green-50 text-green-800 border border-green-200 rounded-lg whitespace-pre-wrap"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Pricing Section -->
+        <section id="planos" class="py-20">
+             <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                     <h3 class="text-3xl md:text-4xl font-bold text-gray-900">Planos acessíveis para sua carreira decolar.</h3>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Escolha o plano ideal para você e comece a ser notado.</p>
+                </div>
+                 <div class="flex flex-col lg:flex-row justify-center items-center gap-8">
+                     <div class="w-full max-w-sm bg-white p-8 rounded-xl shadow-lg border-2 border-transparent">
+                         <h4 class="text-2xl font-bold text-center">Gratuito</h4>
+                         <p class="text-center text-gray-500">Para começar a otimizar</p>
+                         <p class="text-5xl font-extrabold text-center my-6">R$0</p>
+                         <ul class="space-y-3 text-gray-600">
+                             <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>1 Análise de currículo</li>
+                             <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>1 Simulação ATS com vaga</li>
+                             <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>Otimizações de texto limitadas</li>
+                         </ul>
+                         <button class="w-full mt-8 py-3 px-6 border border-violet-700 text-violet-700 font-bold rounded-lg hover:bg-violet-50 transition">Comece Grátis</button>
+                     </div>
+                     <div class="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl border-2 border-violet-700 relative">
+                         <p class="absolute top-0 -translate-y-1/2 bg-violet-700 text-white text-sm font-bold px-4 py-1 rounded-full">MAIS POPULAR</p>
+                         <h4 class="text-2xl font-bold text-center text-violet-700">Pro</h4>
+                         <p class="text-center text-gray-500">Para conquistar a vaga</p>
+                         <p class="text-5xl font-extrabold text-center my-6">R$9,99<span class="text-lg font-medium text-gray-500">/mês</span></p>
+                         <ul class="space-y-3 text-gray-600">
+                             <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>Análises de currículo ilimitadas</li>
+                             <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>Simulações ATS ilimitadas</li>
+                             <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>Otimização de perfil LinkedIn</li>
+                              <li class="flex items-center"><span class="text-green-500 mr-2">✔</span>Gerador de carta de apresentação</li>
+                         </ul>
+                         <button class="w-full mt-8 py-3 px-6 bg-violet-700 text-white font-bold rounded-lg hover:bg-violet-800 transition">Quero o Plano Pro</button>
+                     </div>
+                 </div>
+             </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-600">
+             <p>&copy; 2025 VagaCerta. Todos os direitos reservados.</p>
+             <p class="text-sm mt-2">Feito para ajudar profissionais a alcançarem seu potencial.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Chart.js doughnut chart
+        const ctx = document.getElementById('atsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rejeitados por ATS', 'Vistos por Recrutadores'],
+                datasets: [{
+                    data: [75, 25],
+                    backgroundColor: [
+                        '#a78bfa', // violet-300
+                        '#d8b4fe'  // purple-300
+                    ],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gemini API integration
+        const optimizeBtn = document.getElementById('optimizeBtn');
+        const demoInput = document.getElementById('demo-input');
+        const outputContainer = document.getElementById('demo-output-container');
+        const outputDiv = document.getElementById('demo-output');
+        
+        optimizeBtn.addEventListener('click', async () => {
+            const input = demoInput.value;
+            
+            if (!input.trim()) {
+                alert('Por favor, digite um texto para otimizar.');
+                return;
+            }
+
+            optimizeBtn.disabled = true;
+            optimizeBtn.textContent = 'Otimizando...';
+            outputContainer.classList.add('hidden');
+
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Você é um especialista em carreira e recrutamento do Brasil. Revise o seguinte trecho de um resumo profissional, tornando-o mais impactante, claro e orientado a resultados. Use verbos de ação e, se possível, sugira a inclusão de métricas. Responda apenas com o texto otimizado, em português brasileiro.\n\nTexto original: "${input}"`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    outputDiv.textContent = text.trim();
+                    outputContainer.classList.remove('hidden');
+                } else {
+                     outputDiv.textContent = 'Não foi possível gerar uma sugestão. Verifique o texto e tente novamente.';
+                     outputContainer.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('API Error:', error);
+                outputDiv.textContent = 'Ocorreu um erro ao conectar com a IA. Por favor, tente novamente mais tarde.';
+                outputContainer.classList.remove('hidden');
+            } finally {
+                optimizeBtn.disabled = false;
+                optimizeBtn.textContent = '✨ Otimizar com IA';
+            }
+        });
+
+    </script>
+
+</body>
+</html>
