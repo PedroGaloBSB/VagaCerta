@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VagaCerta - Otimize seu Currículo com IA</title>
-    <!-- Chosen Palette: Professional Trust Palette (Background: #F8F7F4, Text: #1F2937, Primary: #6D28D9, Accent: #ECFDF5) -->
-    <!-- Application Structure Plan: A single-page, narrative-driven landing page structure was chosen to guide the user logically from a pain point to a solution. The flow is: Hero (captures attention), Problem (builds empathy with data), Solution (introduces VagaCerta), Features (details the value), Live Demo (proves the concept and provides immediate value), Pricing (clear call to action), and Footer. This structure is optimal for converting visitors by telling a compelling story and demonstrating capability directly on the page. -->
-    <!-- Visualization & Content Choices: 1) Problem Section: A Chart.js Doughnut chart is used to visually represent a key statistic (e.g., resumes rejected by ATS). Goal: Inform/Impact. Interaction: Hover tooltip. Justification: A visual number is more impactful than text alone. 2) Features Section: A card-based layout with simple icons created via HTML/CSS. Goal: Organize/Inform. Interaction: Subtle hover effects. Justification: Easily scannable and digestible content. 3) Live Demo: An interactive text optimization tool using the Gemini API. Goal: Engagement/Proof of Concept. Interaction: User input and button click. Justification: Provides immediate, tangible value and demonstrates the core technology. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +26,6 @@
 </head>
 <body class="antialiased">
 
-    <!-- Header -->
     <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-violet-700">VagaCerta ✨</h1>
@@ -45,7 +40,6 @@
     </header>
 
     <main>
-        <!-- Hero Section -->
         <section class="py-20 md:py-32">
             <div class="container mx-auto px-6 text-center">
                 <h2 class="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight">
@@ -61,7 +55,6 @@
             </div>
         </section>
 
-        <!-- The Problem Section -->
         <section id="problema" class="py-20 bg-white">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
@@ -85,7 +78,6 @@
             </div>
         </section>
 
-        <!-- The Solution Section -->
         <section id="solucao" class="py-20">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
@@ -112,25 +104,43 @@
             </div>
         </section>
 
-        <!-- Live Demo Section -->
         <section id="demo" class="py-20 bg-white">
             <div class="container mx-auto px-6 text-center">
-                <h3 class="text-3xl md:text-4xl font-bold text-gray-900">Veja a mágica acontecer.</h3>
-                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">Digite um trecho do seu resumo profissional e nossa IA irá otimizá-lo em segundos.</p>
-                <div class="max-w-2xl mx-auto bg-gray-50 p-8 rounded-xl shadow-inner">
-                    <textarea id="demo-input" class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Ex: Profissional dedicado com experiência em gestão de projetos."></textarea>
-                    <button id="optimizeBtn" class="mt-4 w-full bg-violet-700 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105 disabled:bg-gray-400">
-                        ✨ Otimizar com IA
-                    </button>
-                    <div id="demo-output-container" class="mt-6 text-left hidden">
-                        <h4 class="font-bold text-gray-800">Sugestão Otimizada:</h4>
-                        <div id="demo-output" class="mt-2 p-4 bg-green-50 text-green-800 border border-green-200 rounded-lg whitespace-pre-wrap"></div>
+                <h3 class="text-3xl md:text-4xl font-bold text-gray-900">Teste o seu currículo.</h3>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">Copie e cole o conteúdo do seu currículo e a descrição de uma vaga para ver o seu "Score ATS".</p>
+                <div class="max-w-4xl mx-auto bg-gray-50 p-8 rounded-xl shadow-inner grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-2 text-left">Seu Currículo</h4>
+                        <textarea id="curriculo-input" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Cole aqui o conteúdo do seu currículo (em texto puro)..."></textarea>
                     </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-2 text-left">Descrição da Vaga</h4>
+                        <textarea id="vaga-input" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Cole aqui a descrição da vaga..."></textarea>
+                    </div>
+                </div>
+                <button id="analiseBtn" class="mt-8 bg-violet-700 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105 disabled:bg-gray-400">
+                    Analisar Currículo
+                </button>
+                <div id="resultado-container" class="mt-8 text-left hidden">
+                    <h4 class="font-bold text-gray-800 mb-4">Resultado da Análise</h4>
+                    <div class="bg-green-50 text-green-800 border border-green-200 rounded-lg p-6">
+                        <p class="text-lg font-bold mb-2">Score Geral: <span id="score-geral"></span>%</p>
+                        <ul class="space-y-2 text-sm">
+                            <li>Score Técnico: <span id="score-tecnico"></span>%</li>
+                            <li>Score Comportamental: <span id="score-comportamental"></span>%</li>
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <h5 class="font-bold text-gray-700">Habilidades encontradas no currículo:</h5>
+                        <ul id="habilidades-encontradas" class="mt-2 list-disc list-inside text-gray-600"></ul>
+                    </div>
+                </div>
+                <div id="loading-spinner" class="mt-8 hidden">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-violet-500 border-r-transparent"></div>
                 </div>
             </div>
         </section>
         
-        <!-- Pricing Section -->
         <section id="planos" class="py-20">
              <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
@@ -168,7 +178,6 @@
 
     </main>
     
-    <!-- Footer -->
     <footer class="bg-white border-t border-gray-200">
         <div class="container mx-auto px-6 py-8 text-center text-gray-600">
              <p>&copy; 2025 VagaCerta. Todos os direitos reservados.</p>
@@ -186,8 +195,8 @@
                 datasets: [{
                     data: [75, 25],
                     backgroundColor: [
-                        '#a78bfa', // violet-300
-                        '#d8b4fe'  // purple-300
+                        '#a78bfa',
+                        '#d8b4fe'
                     ],
                     borderColor: '#FFFFFF',
                     borderWidth: 4,
@@ -213,66 +222,78 @@
             }
         });
 
-        // Gemini API integration
-        const optimizeBtn = document.getElementById('optimizeBtn');
-        const demoInput = document.getElementById('demo-input');
-        const outputContainer = document.getElementById('demo-output-container');
-        const outputDiv = document.getElementById('demo-output');
-        
-        optimizeBtn.addEventListener('click', async () => {
-            const input = demoInput.value;
+        // Backend Integration Logic
+        const analiseBtn = document.getElementById('analiseBtn');
+        const curriculoInput = document.getElementById('curriculo-input');
+        const vagaInput = document.getElementById('vaga-input');
+        const resultadoContainer = document.getElementById('resultado-container');
+        const scoreGeralSpan = document.getElementById('score-geral');
+        const scoreTecnicoSpan = document.getElementById('score-tecnico');
+        const scoreComportamentalSpan = document.getElementById('score-comportamental');
+        const habilidadesEncontradasUl = document.getElementById('habilidades-encontradas');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        analiseBtn.addEventListener('click', async () => {
+            const curriculo = curriculoInput.value;
+            const vaga = vagaInput.value;
             
-            if (!input.trim()) {
-                alert('Por favor, digite um texto para otimizar.');
+            if (!curriculo.trim() || !vaga.trim()) {
+                alert('Por favor, preencha o currículo e a vaga para realizar a análise.');
                 return;
             }
 
-            optimizeBtn.disabled = true;
-            optimizeBtn.textContent = 'Otimizando...';
-            outputContainer.classList.add('hidden');
-
-            const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            analiseBtn.disabled = true;
+            analiseBtn.textContent = 'Analisando...';
+            loadingSpinner.classList.remove('hidden');
+            resultadoContainer.classList.add('hidden');
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetch('http://127.0.0.1:8000/api/analise', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: `Você é um especialista em carreira e recrutamento do Brasil. Revise o seguinte trecho de um resumo profissional, tornando-o mais impactante, claro e orientado a resultados. Use verbos de ação e, se possível, sugira a inclusão de métricas. Responda apenas com o texto otimizado, em português brasileiro.\n\nTexto original: "${input}"`
-                            }]
-                        }]
-                    })
+                    body: JSON.stringify({ curriculo, vaga })
                 });
 
                 if (!response.ok) {
-                    throw new Error(`API error! status: ${response.status}`);
+                    throw new Error(`Erro na API! Status: ${response.status}`);
                 }
 
-                const result = await response.json();
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                const data = await response.json();
+                const resultado = data.analise;
 
-                if (text) {
-                    outputDiv.textContent = text.trim();
-                    outputContainer.classList.remove('hidden');
-                } else {
-                     outputDiv.textContent = 'Não foi possível gerar uma sugestão. Verifique o texto e tente novamente.';
-                     outputContainer.classList.remove('hidden');
-                }
+                scoreGeralSpan.textContent = resultado.score_geral;
+                scoreTecnicoSpan.textContent = resultado.score_tecnico;
+                scoreComportamentalSpan.textContent = resultado.score_comportamental;
+                
+                habilidadesEncontradasUl.innerHTML = '';
+                resultado.habilidades_tecnicas_encontradas.forEach(hab => {
+                    const li = document.createElement('li');
+                    li.textContent = hab.charAt(0).toUpperCase() + hab.slice(1);
+                    habilidadesEncontradasUl.appendChild(li);
+                });
+                resultado.habilidades_comportamentais_encontradas.forEach(hab => {
+                    const li = document.createElement('li');
+                    li.textContent = hab.charAt(0).toUpperCase() + hab.slice(1);
+                    habilidadesEncontradasUl.appendChild(li);
+                });
+
+                resultadoContainer.classList.remove('hidden');
 
             } catch (error) {
                 console.error('API Error:', error);
-                outputDiv.textContent = 'Ocorreu um erro ao conectar com a IA. Por favor, tente novamente mais tarde.';
-                outputContainer.classList.remove('hidden');
+                alert('Ocorreu um erro ao conectar com o servidor. Verifique se o backend está rodando.');
             } finally {
-                optimizeBtn.disabled = false;
-                optimizeBtn.textContent = '✨ Otimizar com IA';
+                analiseBtn.disabled = false;
+                analiseBtn.textContent = 'Analisar Currículo';
+                loadingSpinner.classList.add('hidden');
             }
         });
-
     </script>
 
 </body>
 </html>
+```eof
+
+Com este novo arquivo, a sua página está pronta para funcionar como uma demonstração completa do seu produto.
+
+**Lembre-se de rodar o seu backend** (`uvicorn app:app --reload`) antes de abrir a página no navegador para que a conexão funcione.
