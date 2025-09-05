@@ -10,18 +10,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F8F7F4;
-            color: #1F2937;
+        body { font-family: 'Inter', sans-serif; background-color: #F8F7F4; color: #1F2937; }
+        .chart-container { position: relative; width: 100%; max-width: 300px; height: 300px; margin: auto; }
+        #curriculo-input::file-selector-button {
+            background-color: #7c3aed; color: white; border: none; padding: 0.5rem 1rem;
+            border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s;
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-            height: 300px;
-            margin: auto;
-        }
+        #curriculo-input::file-selector-button:hover { background-color: #6d28d9; }
     </style>
 </head>
 <body class="antialiased">
@@ -50,7 +45,7 @@
                     O VagaCerta usa Inteligência Artificial para otimizar seu currículo e perfil do LinkedIn, garantindo que você se destaque para os recrutadores e sistemas de triagem (ATS).
                 </p>
                 <div class="mt-10 flex justify-center gap-4">
-                    <a href="#demo" class="bg-violet-700 text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105">Otimize um texto (Grátis)</a>
+                    <a href="#demo" class="bg-violet-700 text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105">Analise seu CV (Grátis)</a>
                 </div>
             </div>
         </section>
@@ -69,9 +64,7 @@
                         <p>Recrutadores levam em média 7 segundos para decidir sobre um currículo. Informações vagas, sem foco em resultados e um perfil de LinkedIn genérico não capturam a atenção.</p>
                     </div>
                     <div>
-                        <div class="chart-container">
-                            <canvas id="atsChart"></canvas>
-                        </div>
+                        <div class="chart-container"><canvas id="atsChart"></canvas></div>
                         <p class="text-center mt-4 text-gray-600 font-semibold">Até 75% dos currículos são rejeitados por sistemas ATS.</p>
                     </div>
                 </div>
@@ -107,11 +100,11 @@
         <section id="demo" class="py-20 bg-white">
             <div class="container mx-auto px-6 text-center">
                 <h3 class="text-3xl md:text-4xl font-bold text-gray-900">Teste o seu currículo.</h3>
-                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">Copie e cole o conteúdo do seu currículo e a descrição de uma vaga para ver o seu "Score ATS".</p>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto mb-8">Envie seu currículo (.pdf ou .docx) e cole a descrição da vaga para ver seu "Score ATS" instantaneamente.</p>
                 <div class="max-w-4xl mx-auto bg-gray-50 p-8 rounded-xl shadow-inner grid md:grid-cols-2 gap-8">
                     <div>
                         <h4 class="font-bold text-gray-800 mb-2 text-left">Seu Currículo</h4>
-                        <textarea id="curriculo-input" class="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition" placeholder="Cole aqui o conteúdo do seu currículo (em texto puro)..."></textarea>
+                        <input type="file" id="curriculo-input" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" accept=".pdf,.docx">
                     </div>
                     <div>
                         <h4 class="font-bold text-gray-800 mb-2 text-left">Descrição da Vaga</h4>
@@ -121,22 +114,41 @@
                 <button id="analiseBtn" class="mt-8 bg-violet-700 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-violet-800 transition-transform hover:scale-105 disabled:bg-gray-400">
                     Analisar Currículo
                 </button>
-                <div id="resultado-container" class="mt-8 text-left hidden">
-                    <h4 class="font-bold text-gray-800 mb-4">Resultado da Análise</h4>
-                    <div class="bg-green-50 text-green-800 border border-green-200 rounded-lg p-6">
-                        <p class="text-lg font-bold mb-2">Score Geral: <span id="score-geral"></span>%</p>
-                        <ul class="space-y-2 text-sm">
-                            <li>Score Técnico: <span id="score-tecnico"></span>%</li>
-                            <li>Score Comportamental: <span id="score-comportamental"></span>%</li>
-                        </ul>
-                    </div>
-                    <div class="mt-6">
-                        <h5 class="font-bold text-gray-700">Habilidades encontradas no currículo:</h5>
-                        <ul id="habilidades-encontradas" class="mt-2 list-disc list-inside text-gray-600"></ul>
+                
+                <div id="resultado-container" class="mt-12 text-left max-w-4xl mx-auto hidden">
+                    <h4 class="text-2xl font-bold text-gray-800 mb-4">Resultado da Análise</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h5 class="font-bold text-lg mb-4 text-violet-700">Scores de Compatibilidade</h5>
+                            <div class="space-y-3">
+                                <p class="text-xl font-bold">Score Geral: <span id="score-geral" class="text-green-600"></span>%</p>
+                                <p>Score Técnico: <span id="score-tecnico"></span>%</p>
+                                <p>Score Comportamental: <span id="score-comportamental"></span>%</p>
+                                <p>Score Semântico (IA): <span id="score-semantico"></span>%</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                             <h5 class="font-bold text-lg mb-4 text-violet-700">Análise de Habilidades</h5>
+                             <div class="space-y-4">
+                                <div>
+                                    <h6 class="font-semibold text-green-700">Habilidades Encontradas:</h6>
+                                    <ul id="habilidades-encontradas" class="mt-1 text-sm text-gray-600 list-disc list-inside"></ul>
+                                </div>
+                                 <div>
+                                    <h6 class="font-semibold text-red-700">Habilidades Faltantes:</h6>
+                                    <ul id="habilidades-faltantes" class="mt-1 text-sm text-gray-600 list-disc list-inside"></ul>
+                                </div>
+                             </div>
+                        </div>
                     </div>
                 </div>
-                <div id="loading-spinner" class="mt-8 hidden">
-                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-violet-500 border-r-transparent"></div>
+
+                <div id="loading-spinner" class="mt-8 hidden mx-auto">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-violet-500 border-t-transparent"></div>
+                </div>
+                 <div id="error-message" class="mt-8 text-left hidden max-w-4xl mx-auto bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                    <strong class="font-bold">Erro:</strong>
+                    <span id="error-text" class="block sm:inline"></span>
                 </div>
             </div>
         </section>
@@ -175,7 +187,6 @@
                  </div>
              </div>
         </section>
-
     </main>
     
     <footer class="bg-white border-t border-gray-200">
@@ -186,102 +197,110 @@
     </footer>
 
     <script>
-        // Chart.js doughnut chart
+        // Chart.js (sem alterações)
         const ctx = document.getElementById('atsChart').getContext('2d');
         new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Rejeitados por ATS', 'Vistos por Recrutadores'],
-                datasets: [{
-                    data: [75, 25],
-                    backgroundColor: [
-                        '#a78bfa',
-                        '#d8b4fe'
-                    ],
-                    borderColor: '#FFFFFF',
-                    borderWidth: 4,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.raw + '%';
-                            }
-                        }
-                    }
-                }
-            }
+            type: 'doughnut', data: { labels: ['Rejeitados por ATS', 'Vistos por Recrutadores'], datasets: [{ data: [75, 25], backgroundColor: ['#a78bfa', '#d8b4fe'], borderColor: '#FFFFFF', borderWidth: 4, hoverOffset: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: (context) => context.label + ': ' + context.raw + '%' } } } }
         });
 
-        // Backend Integration Logic
+        // LÓGICA DE INTEGRAÇÃO COM BACKEND - ATUALIZADA
         const analiseBtn = document.getElementById('analiseBtn');
         const curriculoInput = document.getElementById('curriculo-input');
         const vagaInput = document.getElementById('vaga-input');
+        
         const resultadoContainer = document.getElementById('resultado-container');
         const scoreGeralSpan = document.getElementById('score-geral');
         const scoreTecnicoSpan = document.getElementById('score-tecnico');
         const scoreComportamentalSpan = document.getElementById('score-comportamental');
+        const scoreSemanticoSpan = document.getElementById('score-semantico');
         const habilidadesEncontradasUl = document.getElementById('habilidades-encontradas');
+        const habilidadesFaltantesUl = document.getElementById('habilidades-faltantes');
+
         const loadingSpinner = document.getElementById('loading-spinner');
+        const errorMessageDiv = document.getElementById('error-message');
+        const errorTextSpan = document.getElementById('error-text');
+
+        function capitalize(s) {
+            if (typeof s !== 'string') return '';
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
 
         analiseBtn.addEventListener('click', async () => {
-            const curriculo = curriculoInput.value;
             const vaga = vagaInput.value;
+            const curriculoFile = curriculoInput.files[0];
             
-            if (!curriculo.trim() || !vaga.trim()) {
-                alert('Por favor, preencha o currículo e a vaga para realizar a análise.');
+            if (!curriculoFile || !vaga.trim()) {
+                alert('Por favor, envie um arquivo de currículo e preencha a descrição da vaga.');
                 return;
             }
 
+            // Reset UI
             analiseBtn.disabled = true;
             analiseBtn.textContent = 'Analisando...';
             loadingSpinner.classList.remove('hidden');
             resultadoContainer.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+
+            // USANDO FormData PARA ENVIAR ARQUIVO E TEXTO
+            const formData = new FormData();
+            formData.append('curriculo_file', curriculoFile);
+            formData.append('vaga', vaga);
 
             try {
                 const response = await fetch('http://127.0.0.1:8000/api/analise', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ curriculo, vaga })
+                    // IMPORTANTE: Não defina o 'Content-Type' header. 
+                    // O navegador o fará automaticamente para multipart/form-data.
+                    body: formData
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    throw new Error(`Erro na API! Status: ${response.status}`);
+                    // Se a API retornar um erro (ex: 400, 500), ele será capturado aqui
+                    throw new Error(data.detail || `Erro na API! Status: ${response.status}`);
                 }
 
-                const data = await response.json();
                 const resultado = data.analise;
 
+                // Preencher scores
                 scoreGeralSpan.textContent = resultado.score_geral;
                 scoreTecnicoSpan.textContent = resultado.score_tecnico;
                 scoreComportamentalSpan.textContent = resultado.score_comportamental;
+                scoreSemanticoSpan.textContent = resultado.score_semantico;
                 
+                // Preencher listas de habilidades
                 habilidadesEncontradasUl.innerHTML = '';
-                resultado.habilidades_tecnicas_encontradas.forEach(hab => {
-                    const li = document.createElement('li');
-                    li.textContent = hab.charAt(0).toUpperCase() + hab.slice(1);
-                    habilidadesEncontradasUl.appendChild(li);
-                });
-                resultado.habilidades_comportamentais_encontradas.forEach(hab => {
-                    const li = document.createElement('li');
-                    li.textContent = hab.charAt(0).toUpperCase() + hab.slice(1);
-                    habilidadesEncontradasUl.appendChild(li);
-                });
+                const allFoundSkills = [...resultado.habilidades_tecnicas_encontradas, ...resultado.habilidades_comportamentais_encontradas];
+                if (allFoundSkills.length > 0) {
+                    allFoundSkills.forEach(hab => {
+                        const li = document.createElement('li');
+                        li.textContent = capitalize(hab);
+                        habilidadesEncontradasUl.appendChild(li);
+                    });
+                } else {
+                    habilidadesEncontradasUl.innerHTML = '<li>Nenhuma habilidade correspondente encontrada.</li>';
+                }
+
+                habilidadesFaltantesUl.innerHTML = '';
+                 if (resultado.habilidades_tecnicas_faltantes.length > 0) {
+                    resultado.habilidades_tecnicas_faltantes.forEach(hab => {
+                        const li = document.createElement('li');
+                        li.textContent = capitalize(hab);
+                        habilidadesFaltantesUl.appendChild(li);
+                    });
+                } else {
+                     habilidadesFaltantesUl.innerHTML = '<li>Parabéns! Nenhuma habilidade técnica da vaga está faltando.</li>';
+                }
+
 
                 resultadoContainer.classList.remove('hidden');
 
             } catch (error) {
                 console.error('API Error:', error);
-                alert('Ocorreu um erro ao conectar com o servidor. Verifique se o backend está rodando.');
+                errorTextSpan.textContent = error.message;
+                errorMessageDiv.classList.remove('hidden');
             } finally {
                 analiseBtn.disabled = false;
                 analiseBtn.textContent = 'Analisar Currículo';
@@ -289,6 +308,5 @@
             }
         });
     </script>
-
 </body>
 </html>
