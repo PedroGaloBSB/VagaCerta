@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile, Form
-from pydantic import BaseModel
-from typing import Dict, List, Set
+from typing import Dict, Set
 import re
 import io
 import spacy
@@ -13,20 +12,28 @@ import docx
 # --- CONFIGURAÇÃO INICIAL (executado apenas uma vez quando a API inicia) ---
 app = FastAPI()
 
-# (O restante da configuração de IA permanece o mesmo...)
+# 1. Carregar modelo de NLP do spaCy para português
+# (Lembre-se de ter executado: python -m spacy download pt_core_news_lg)
 try:
     nlp = spacy.load("pt_core_news_lg")
 except OSError:
-    print("Modelo 'pt_core_news_lg' do spaCy não encontrado. Execute 'python -m spacy download pt_core_news_lg'")
+    print("AVISO: Modelo 'pt_core_news_lg' do spaCy não encontrado. A extração de habilidades será menos precisa.")
+    print("Para instalar, pare o servidor e execute: python -m spacy download pt_core_news_lg")
     nlp = None
-semantic_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-try:
-    nltk.data.find('corpora/stopwords')
-except nltk.downloader.DownloadError:
-    nltk.download('stopwords')
-portuguese_stopwords = set(stopwords.words('portuguese'))
 
-# (A TAXONOMIA permanece a mesma...)
+# 2. Carregar modelo de similaridade semântica (Sentence Transformer)
+semantic_model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+
+# 3. Baixar e configurar stopwords do NLTK para português
+try:
+    portuguese_stopwords = set(stopwords.words('portuguese'))
+except LookupError:
+    print("Pacote 'stopwords' do NLTK não encontrado. Baixando agora...")
+    nltk.download('stopwords')
+    portuguese_stopwords = set(stopwords.words('portuguese'))
+
+
+# --- TAXONOMIA (Nosso conhecimento de negócio) ---
 TAXONOMIA_GERAL = {
     "tecnologia": {"habilidades_tecnicas": ["python", "java", "javascript", "go", "c#", "react", "angular", "django", "spring", "vue.js", "node.js", "flask", "express", "sql", "nosql", "mongodb", "postgresql", "mysql", "aws", "azure", "google cloud", "docker", "kubernetes", "git", "agile", "scrum", "kanban", "devops", "ci/cd", "analise de dados", "inteligencia artificial", "ia", "machine learning"]},
     "administrativo": {"habilidades_tecnicas": ["pacote office", "excel", "word", "powerpoint", "sistemas erp", "sap", "totvs", "gestao de documentos", "emissao de nota fiscal", "controle de estoque", "contas a pagar", "contas a receber", "fluxo de caixa", "rotinas administrativas"]},
@@ -36,11 +43,12 @@ TAXONOMIA_GERAL = {
     "saude": {"habilidades_tecnicas": ["primeiros socorros", "prontuario eletronico", "gestao de pacientes", "atendimento de emergencia", "procedimentos clinicos", "administracao de medicamentos", "cuidado ao paciente"]},
     "comportamental": {"habilidades": ["organizacao", "planejamento", "comunicacao", "proatividade", "resolucao de problemas", "atendimento ao cliente", "persuasao", "resiliencia", "empatia", "trabalho em equipe", "networking", "lideranca", "criatividade", "storytelling", "pensamento estrategico", "pensamento analitico", "atencao aos detalhes", "etica", "adaptabilidade", "flexibilidade", "colaboracao"]}
 }
+
 todas_habilidades_tecnicas = {hab for area in TAXONOMIA_GERAL.values() for hab in area.get("habilidades_tecnicas", [])}
 todas_habilidades_comportamentais = set(TAXONOMIA_GERAL["comportamental"]["habilidades"])
 
 
-# --- NOVA FUNÇÃO PARA EXTRAIR TEXTO DE ARQUIVOS ---
+# --- FUNÇÃO PARA EXTRAIR TEXTO DE ARQUIVOS ---
 async def extrair_texto_de_arquivo(file: UploadFile) -> str:
     filename = file.filename.lower()
     content = await file.read()
@@ -65,40 +73,58 @@ async def extrair_texto_de_arquivo(file: UploadFile) -> str:
         
     return text
 
-# (As funções de IA `normalizar_texto`, `extrair_habilidades`, `calcular_similaridade_semantica` permanecem as mesmas...)
+
+# --- FUNÇÕES AUXILIARES DE IA ---
 def normalizar_texto(texto: str) -> str:
+    """Limpeza básica do texto."""
     texto = texto.lower()
-    texto = re.sub(r'[^\w\s#\+]', '', texto)
+    texto = re.sub(r'[^\w\s#\+]', '', texto) # Mantém c#, c++ etc.
     return texto
 
 def extrair_habilidades(texto: str, habilidades_disponiveis: Set[str]) -> Set[str]:
-    if not nlp: return {hab for hab in habilidades_disponiveis if hab in texto}
-    doc = nlp(normalizar_texto(texto))
+    """Usa spaCy para extrair habilidades de forma inteligente."""
+    texto_normalizado = normalizar_texto(texto)
+    if not nlp:
+        # Fallback para método simples se o spaCy não estiver carregado
+        return {hab for hab in habilidades_disponiveis if hab in texto_normalizado}
+
+    doc = nlp(texto_normalizado)
     matcher = spacy.matcher.PhraseMatcher(nlp.vocab, attr="LOWER")
     patterns = [nlp.make_doc(hab) for hab in habilidades_disponiveis]
     matcher.add("HABILIDADES", patterns)
+    
     matches = matcher(doc)
     return {doc[start:end].text for _, start, end in matches}
 
 def calcular_similaridade_semantica(texto1: str, texto2: str) -> float:
+    """Calcula a similaridade de significado entre dois textos."""
     texto1_limpo = " ".join([palavra for palavra in normalizar_texto(texto1).split() if palavra not in portuguese_stopwords])
     texto2_limpo = " ".join([palavra for palavra in normalizar_texto(texto2).split() if palavra not in portuguese_stopwords])
+
     embedding1 = semantic_model.encode(texto1_limpo, convert_to_tensor=True)
     embedding2 = semantic_model.encode(texto2_limpo, convert_to_tensor=True)
+    
     cosine_score = util.pytorch_cos_sim(embedding1, embedding2).item()
+    
     return max(0, cosine_score * 100)
+
 
 # --- LÓGICA DE ANÁLISE (agora separada para reutilização) ---
 def realizar_analise_completa(curriculo_texto: str, vaga_texto: str) -> Dict:
     habilidades_tecnicas_vaga = extrair_habilidades(vaga_texto, todas_habilidades_tecnicas)
     habilidades_comportamentais_vaga = extrair_habilidades(vaga_texto, todas_habilidades_comportamentais)
+    
     habilidades_tecnicas_cv = extrair_habilidades(curriculo_texto, todas_habilidades_tecnicas)
     habilidades_comportamentais_cv = extrair_habilidades(curriculo_texto, todas_habilidades_comportamentais)
+
     match_tecnicas = habilidades_tecnicas_vaga.intersection(habilidades_tecnicas_cv)
     match_comportamentais = habilidades_comportamentais_vaga.intersection(habilidades_comportamentais_cv)
+    
     score_tecnico = (len(match_tecnicas) / len(habilidades_tecnicas_vaga)) * 100 if habilidades_tecnicas_vaga else 100
     score_comportamental = (len(match_comportamentais) / len(habilidades_comportamentais_vaga)) * 100 if habilidades_comportamentais_vaga else 100
+
     score_semantico = calcular_similaridade_semantica(curriculo_texto, vaga_texto)
+
     peso_tecnico, peso_semantico, peso_comportamental = 0.45, 0.35, 0.20
     score_geral = (score_tecnico * peso_tecnico) + (score_semantico * peso_semantico) + (score_comportamental * peso_comportamental)
     
@@ -112,6 +138,7 @@ def realizar_analise_completa(curriculo_texto: str, vaga_texto: str) -> Dict:
         "habilidades_tecnicas_faltantes": sorted(list(habilidades_tecnicas_vaga - match_tecnicas))
     }
 
+
 # --- ENDPOINT DA API ATUALIZADO ---
 @app.post("/api/analise")
 async def analise_curriculo(
@@ -124,18 +151,15 @@ async def analise_curriculo(
         raise HTTPException(status_code=400, detail="A descrição da vaga não pode estar vazia.")
     
     try:
-        # 1. Extrai o texto do arquivo enviado
         curriculo_texto = await extrair_texto_de_arquivo(curriculo_file)
         if not curriculo_texto.strip():
             raise HTTPException(status_code=400, detail="Não foi possível extrair texto do arquivo do currículo.")
 
-        # 2. Roda a mesma lógica de análise de IA
         resultado = realizar_analise_completa(curriculo_texto, vaga)
         
         return {"status": "sucesso", "analise": resultado}
 
     except Exception as e:
-        # Captura exceções da extração de texto ou da análise
         if isinstance(e, HTTPException):
             raise e
         print(f"Erro na análise: {e}")
