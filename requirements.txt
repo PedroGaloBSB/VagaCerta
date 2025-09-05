@@ -1,0 +1,47 @@
+# --- Web Framework e Servidor ---
+# FastAPI é o framework para construir nossa API.
+# Uvicorn é o servidor que executa a aplicação FastAPI.
+fastapi
+uvicorn[standard]
+
+# --- Processamento de Linguagem Natural (NLP) e Machine Learning ---
+# NLTK (Natural Language Toolkit): Essencial para tarefas básicas de NLP como 
+# tokenização (dividir texto em palavras), stemming e remoção de stopwords.
+nltk
+
+# spaCy: Uma biblioteca moderna e poderosa para NLP. Ótima para reconhecimento
+# de entidades (identificar "Python", "React" como habilidades), análise
+# sintática e muito mais. É uma evolução natural para nosso projeto.
+spacy
+
+# Scikit-learn: A biblioteca padrão para Machine Learning em Python.
+# Usaremos para criar modelos mais avançados, como classificação de texto
+# (identificar a área de uma vaga) e para usar técnicas como TF-IDF para
+# medir a relevância das palavras.
+scikit-learn
+
+# --- Deep Learning para NLP (Avançado) ---
+# Transformers (da Hugging Face): Acesso a modelos de IA de ponta como BERT e GPT.
+# Com isso, podemos calcular a similaridade semântica entre o currículo e a vaga,
+# indo muito além da simples correspondência de palavras-chave.
+transformers
+
+# PyTorch: A principal biblioteca de Deep Learning que alimenta muitos dos modelos
+# da biblioteca Transformers. É bom tê-la explicitamente no projeto.
+torch
+
+# Sentence-Transformers: Uma biblioteca fantástica construída sobre o Transformers,
+# otimizada para comparar frases e parágrafos, o que é perfeito para
+# comparar descrições de experiências no currículo com os requisitos da vaga.
+sentence-transformers
+
+# --- Bibliotecas para Leitura de Arquivos ---
+# Para extrair texto de arquivos .pdf
+pypdf
+
+# Para extrair texto de arquivos .docx (Word)
+python-docx
+
+# --- Dependência do FastAPI para Uploads ---
+# Necessário para o FastAPI processar formulários com arquivos (multipart/form-data)
+python-multipart
