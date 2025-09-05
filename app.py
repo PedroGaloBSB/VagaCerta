@@ -12,13 +12,12 @@ import pypdf
 import docx
 
 # --- CONFIGURAÇÃO DE LOGS ---
-# Configura o sistema de logs para registrar informações em um arquivo e no console.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("vaga_certa.log"), # Salva os logs em um arquivo
-        logging.StreamHandler() # Mostra os logs no terminal
+        logging.FileHandler("vaga_certa.log"),
+        logging.StreamHandler()
     ]
 )
 
@@ -26,7 +25,6 @@ logging.basicConfig(
 app = FastAPI()
 
 # --- CONFIGURAÇÃO DE CORS ---
-# Permite que o frontend (aberto de um arquivo local) se comunique com a API.
 origins = ["http://localhost", "http://localhost:8000", "http://127.0.0.1", "http://127.0.0.1:8000", "null"]
 app.add_middleware(
     CORSMiddleware,
@@ -58,8 +56,6 @@ except LookupError:
     nltk.download('stopwords')
     portuguese_stopwords = set(stopwords.words('portuguese'))
 
-# (O resto do código permanece o mesmo, mas trocamos 'print' por 'logging')
-
 # --- TAXONOMIA ---
 TAXONOMIA_GERAL = {
     "tecnologia": {"habilidades_tecnicas": ["python", "java", "javascript", "go", "c#", "react", "angular", "django", "spring", "vue.js", "node.js", "flask", "express", "sql", "nosql", "mongodb", "postgresql", "mysql", "aws", "azure", "google cloud", "docker", "kubernetes", "git", "agile", "scrum", "kanban", "devops", "ci/cd", "analise de dados", "inteligencia artificial", "ia", "machine learning"]},
@@ -75,7 +71,6 @@ todas_habilidades_comportamentais = set(TAXONOMIA_GERAL["comportamental"]["habil
 
 # --- FUNÇÕES AUXILIARES ---
 async def extrair_texto_de_arquivo(file: UploadFile) -> str:
-    # (Esta função permanece a mesma)
     filename = file.filename.lower()
     content = await file.read()
     text = ""
@@ -121,22 +116,37 @@ def calcular_similaridade_semantica(texto1: str, texto2: str) -> float:
     cosine_score = util.pytorch_cos_sim(embedding1, embedding2).item()
     return max(0, cosine_score * 100)
 
+# --- LÓGICA DE ANÁLISE (ATUALIZADA) ---
 def realizar_analise_completa(curriculo_texto: str, vaga_texto: str) -> Dict:
-    # (Esta função permanece a mesma)
     habilidades_tecnicas_vaga = extrair_habilidades(vaga_texto, todas_habilidades_tecnicas)
     habilidades_comportamentais_vaga = extrair_habilidades(vaga_texto, todas_habilidades_comportamentais)
+    
     habilidades_tecnicas_cv = extrair_habilidades(curriculo_texto, todas_habilidades_tecnicas)
     habilidades_comportamentais_cv = extrair_habilidades(curriculo_texto, todas_habilidades_comportamentais)
+
     match_tecnicas = habilidades_tecnicas_vaga.intersection(habilidades_tecnicas_cv)
     match_comportamentais = habilidades_comportamentais_vaga.intersection(habilidades_comportamentais_cv)
-    score_tecnico = (len(match_tecnicas) / len(habilidades_tecnicas_vaga)) * 100 if habilidades_tecnicas_vaga else 100
-    score_comportamental = (len(match_comportamentais) / len(habilidades_comportamentais_vaga)) * 100 if habilidades_comportamentais_vaga else 100
+    
+    # === MUDANÇA 1: Correção da fórmula do score técnico ===
+    # Se não houver habilidades técnicas na vaga, o score é 0, não 100.
+    score_tecnico = (len(match_tecnicas) / len(habilidades_tecnicas_vaga)) * 100 if habilidades_tecnicas_vaga else 0.0
+    score_comportamental = (len(match_comportamentais) / len(habilidades_comportamentais_vaga)) * 100 if habilidades_comportamentais_vaga else 0.0
+
     score_semantico = calcular_similaridade_semantica(curriculo_texto, vaga_texto)
-    peso_tecnico, peso_semantico, peso_comportamental = 0.45, 0.35, 0.20
-    score_geral = (score_tecnico * peso_tecnico) + (score_semantico * peso_semantico) + (score_comportamental * peso_comportamental)
+
+    # === MUDANÇA 2: Nova fórmula do Score Geral com "Multiplicador de Relevância" ===
+    # O score semântico agora pondera o resultado dos outros scores.
+    # Se a semântica for baixa (ex: 30%), o score geral não poderá ser alto.
+    score_base_habilidades = (score_tecnico * 0.7) + (score_comportamental * 0.3) # Média ponderada das habilidades
+    
+    # O score geral é o score das habilidades, mas filtrado pela relevância semântica.
+    score_geral = score_base_habilidades * (score_semantico / 100)
+
     return {
-        "score_geral": round(score_geral, 2), "score_tecnico": round(score_tecnico, 2),
-        "score_comportamental": round(score_comportamental, 2), "score_semantico": round(score_semantico, 2),
+        "score_geral": round(score_geral, 2),
+        "score_tecnico": round(score_tecnico, 2),
+        "score_comportamental": round(score_comportamental, 2),
+        "score_semantico": round(score_semantico, 2),
         "habilidades_tecnicas_encontradas": sorted(list(match_tecnicas)),
         "habilidades_comportamentais_encontradas": sorted(list(match_comportamentais)),
         "habilidades_tecnicas_faltantes": sorted(list(habilidades_tecnicas_vaga - match_tecnicas))
@@ -161,8 +171,6 @@ async def analise_curriculo(
         return {"status": "sucesso", "analise": resultado}
 
     except Exception as e:
-        # --- TRATAMENTO DE ERRO APRIMORADO ---
-        # Registra o erro completo no log antes de enviar uma resposta genérica para o usuário.
         logging.error(f"Erro inesperado durante a análise de {curriculo_file.filename}: {e}", exc_info=True)
         if isinstance(e, HTTPException):
             raise e
